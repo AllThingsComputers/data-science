@@ -1,0 +1,66 @@
+% Main Function
+function [] = LinearRegression()
+    % Load Data
+    data = load('1.txt');
+    
+    % Transfer Data in x & y variables
+    x = data(:, 1);
+    y = data(:, 2);
+    m = size(x, 1); % Number of training examples
+    theta = zeros(1, 2); % Initializing theta values
+
+    % Plot Your Data
+    plot(x, y, 'bs', 'MarkerSize', 5);
+    ylabel('Hits Against Website');
+    xlabel('Days since 06/02/2022');
+
+    % Calculate Hits
+    X = [ones(m, 1), x]; % Adding intercept term
+    J = calculateHitsVectorize(X, y, theta);
+
+    % Initialize Gradient Descent Constants
+    iterations = 1500;
+    alpha = 0.01;
+
+    % Run Gradient Descent
+    theta = runGradientDescent(X, y, theta, alpha, iterations);
+
+    % Plot Hypothesis Graph with New theta values
+    hold on; % Keep the original plot
+    hypothesis = X * theta';
+    plot(x, hypothesis, 'r-');
+    hold off;
+
+    % Predict Values using Model Theta Values
+    population_one = 3.5;
+    profit_one = predictProfit(population_one, theta);
+
+    population_two = 12;
+    profit_two = predictProfit(population_two, theta);
+
+    fprintf('Profit prediction for population 3.5: %.2f\n', profit_one);
+    fprintf('Profit prediction for population 12: %.2f\n', profit_two);
+end
+
+% Prediction Function
+function [prediction] = predictProfit(input, theta)
+    prediction = [1, input] * theta'; % Adding intercept term
+    prediction = prediction * 10000; % Scaling up
+end
+
+% Gradient Descent Function
+function [theta] = runGradientDescent(X, y, theta, alpha, iterations)
+    m = length(y); % Number of training examples
+    for iter = 1:iterations
+        hypothesis = X * theta' - y;
+        theta(1) = theta(1) - alpha * (1/m) * sum(hypothesis);
+        theta(2) = theta(2) - alpha * (1/m) * sum(hypothesis .* X(:, 2));
+    end
+end
+
+% Calculate Hits Using Vectorized Method
+function J = calculateHitsVectorize(X, y, theta)
+    m = length(y);
+    hypothesis = X * theta';
+    J = sum((hypothesis - y) .^ 2) / (2 * m);
+end
